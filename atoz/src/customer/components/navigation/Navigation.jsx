@@ -1,6 +1,7 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import {
   Dialog,
   DialogBackdrop,
@@ -16,133 +17,113 @@ import {
   TabPanels,
 } from '@headlessui/react'
 import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import CartItems from '../Cart/CartItems'
+import AuthModal from '../../Auth/AuthModal'
+import { useCart } from '../../context/CartContext'
+import { useAuth } from '../../context/AuthContext'
+
+const navIconClass =
+  'size-6 shrink-0 text-gray-400 transition-all duration-200 ease-out group-hover:scale-110 group-hover:text-indigo-600 group-hover:-translate-y-0.5 group-hover:drop-shadow-sm'
+
+function NavIconTooltip({ children, label, className = '' }) {
+  return (
+    <div className={`group relative inline-flex ${className}`}>
+      {children}
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute left-1/2 top-full z-[60] mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition-all duration-200 ease-out delay-75 invisible group-hover:visible group-hover:opacity-100"
+      >
+        {label}
+      </span>
+    </div>
+  )
+}
 
 const navigation = {
   categories: [
     {
-      id: 'Gym suppliment',
-      name: 'Gym suppliment',
-      featured: [
-        {
-          name: 'Protine',
-          href: '#',
-          imageSrc: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/mega-menu-category-01.jpg',
-          imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-        },
-        {
-          name: 'Vitamins',
-          href: '#',
-          imageSrc: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/mega-menu-category-02.jpg',
-          imageAlt: 'Close up of Basic Tee fall bundle with off-white, ochre, olive, and black tees.',
-        },
-      ],
-      sections: [
-        {
-          id: 'clothing',
-          name: 'Clothing',
-          items: [
-            { name: 'Tops', href: '#' },
-            { name: 'Dresses', href: '#' },
-            { name: 'Pants', href: '#' },
-            { name: 'Denim', href: '#' },
-            { name: 'Sweaters', href: '#' },
-            { name: 'T-Shirts', href: '#' },
-            { name: 'Jackets', href: '#' },
-            { name: 'Activewear', href: '#' },
-            { name: 'Browse All', href: '#' },
-          ],
-        },
-        {
-          id: 'accessories',
-          name: 'Accessories',
-          items: [
-            { name: 'Watches', href: '#' },
-            { name: 'Wallets', href: '#' },
-            { name: 'Bags', href: '#' },
-            { name: 'Sunglasses', href: '#' },
-            { name: 'Hats', href: '#' },
-            { name: 'Belts', href: '#' },
-          ],
-        },
-        {
-          id: 'brands',
-          name: 'Brands',
-          items: [
-            { name: 'Full Nelson', href: '#' },
-            { name: 'My Way', href: '#' },
-            { name: 'Re-Arranged', href: '#' },
-            { name: 'Counterfeit', href: '#' },
-            { name: 'Significant Other', href: '#' },
-          ],
-        },
-      ],
-    },
-    {
       id: 'Medicines',
       name: 'Medicines',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc:
-            'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
-          imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
-        },
-        {
-          name: 'Artwork Tees',
-          href: '#',
-          imageSrc: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-06.jpg',
-          imageAlt:
-            'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
-        },
-      ],
+      featured: [],
       sections: [
         {
-          id: 'clothing',
-          name: 'Clothing',
+          id: 'supplements',
+          name: 'Supplements',
           items: [
-            { name: 'Tops', href: '#' },
-            { name: 'Pants', href: '#' },
-            { name: 'Sweaters', href: '#' },
-            { name: 'T-Shirts', href: '#' },
-            { name: 'Jackets', href: '#' },
-            { name: 'Activewear', href: '#' },
+            { name: 'Protein', href: '#' },
+            { name: 'Mass Gainer', href: '#' },
+            { name: 'Creatine', href: '#' },
+            { name: 'Omega-3', href: '#' },
             { name: 'Browse All', href: '#' },
           ],
         },
         {
-          id: 'accessories',
-          name: 'Accessories',
+          id: 'medicines',
+          name: 'Medicines',
           items: [
-            { name: 'Watches', href: '#' },
-            { name: 'Wallets', href: '#' },
-            { name: 'Bags', href: '#' },
-            { name: 'Sunglasses', href: '#' },
-            { name: 'Hats', href: '#' },
-            { name: 'Belts', href: '#' },
+            { name: 'Ayurvedic', href: '#' },
+            { name: 'Homeopathy', href: '#' },
+            { name: 'Health Care', href: '#' },
+            { name: 'Personal Care', href: '#' },
           ],
         },
         {
           id: 'brands',
           name: 'Brands',
           items: [
-            { name: 'Re-Arranged', href: '#' },
-            { name: 'Counterfeit', href: '#' },
-            { name: 'Full Nelson', href: '#' },
-            { name: 'My Way', href: '#' },
+            { name: 'Optimum Nutrition', href: '#' },
+            { name: 'MuscleBlaze', href: '#' },
+            { name: 'Himalaya', href: '#' },
+            { name: 'GNC', href: '#' },
           ],
         },
       ],
     },
   ],
   pages: [
-    { name: 'Company', href: '#' },
     { name: 'Stores', href: '#' },
   ],
 }
 
 export default function Example() {
   const [open, setOpen] = useState(false)
+  const [isNavVisible, setIsNavVisible] = useState(true)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [authModalIsLogin, setAuthModalIsLogin] = useState(true)
+  const lastScrollY = useRef(0)
+  const { itemCount, isCartOpen, toggleCart, closeCart } = useCart()
+  const { user, logout } = useAuth()
+  const location = useLocation()
+
+  const cartCountLabel = useMemo(() => String(itemCount || 0), [itemCount])
+
+  const isActive = (path) => location.pathname === path
+
+  const openAuthModal = (isLogin = true) => {
+    setAuthModalIsLogin(isLogin)
+    setIsAuthModalOpen(true)
+    setOpen(false) // Close mobile menu if open
+  }
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      const scrolledDown = currentScrollY > lastScrollY.current
+      const nearTop = currentScrollY < 80
+
+      if (nearTop || !scrolledDown || open || isCartOpen) {
+        setIsNavVisible(true)
+      } else {
+        setIsNavVisible(false)
+      }
+
+      lastScrollY.current = currentScrollY
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [open, isCartOpen])
 
   return (
     <div className="bg-white z-50">
@@ -158,15 +139,17 @@ export default function Example() {
             className="relative flex w-full max-w-xs transform flex-col overflow-y-auto bg-white pb-12 shadow-xl transition duration-300 ease-in-out data-[closed]:-translate-x-full"
           >
             <div className="flex px-4 pb-2 pt-5">
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400"
-              >
-                <span className="absolute -inset-0.5" />
-                <span className="sr-only">Close menu</span>
-                <XMarkIcon aria-hidden="true" className="size-6" />
-              </button>
+              <NavIconTooltip label="Close">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition-colors duration-200 hover:bg-gray-100"
+                >
+                  <span className="absolute -inset-0.5" />
+                  <span className="sr-only">Close menu</span>
+                  <XMarkIcon aria-hidden="true" className={navIconClass} />
+                </button>
+              </NavIconTooltip>
             </div>
 
             {/* Links */}
@@ -232,24 +215,52 @@ export default function Example() {
             <div className="space-y-6 border-t border-gray-200 px-4 py-6">
               {navigation.pages.map((page) => (
                 <div key={page.name} className="flow-root">
-                  <a href={page.href} className="-m-2 block p-2 font-medium text-gray-900">
+                  <Link
+                    to="/products"
+                    onClick={() => setOpen(false)}
+                    className={`-m-2 block p-2 font-medium transition-colors ${
+                      isActive('/products') ? 'text-indigo-600' : 'text-gray-900'
+                    }`}
+                  >
                     {page.name}
-                  </a>
+                  </Link>
                 </div>
               ))}
             </div>
 
             <div className="space-y-6 border-t border-gray-200 px-4 py-6">
-              <div className="flow-root">
-                <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
-                  Sign in
-                </a>
-              </div>
-              <div className="flow-root">
-                <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
-                  Create account
-                </a>
-              </div>
+              {user ? (
+                <div className="flex flex-col space-y-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Hi, {user.firstName}
+                  </span>
+                  <button
+                    onClick={logout}
+                    className="text-sm font-medium text-indigo-600 text-left"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flow-root">
+                    <button
+                      onClick={() => openAuthModal(true)}
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Sign in
+                    </button>
+                  </div>
+                  <div className="flow-root">
+                    <button
+                      onClick={() => openAuthModal(false)}
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Create account
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="border-t border-gray-200 px-4 py-6">
@@ -267,35 +278,41 @@ export default function Example() {
         </div>
       </Dialog>
 
-      <header className="sticky top-0 z-50 bg-white shadow-md">
+      <header
+        className={`fixed inset-x-0 top-0 z-50 bg-white/95 shadow-md backdrop-blur transition-transform duration-300 ease-in-out supports-[backdrop-filter]:bg-white/80 ${
+          isNavVisible ? 'translate-y-0' : '-translate-y-full'
+        }`}
+      >
 
         <p className="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8">
           Get free delivery on orders over $100
         </p>
 
-        <nav aria-label="Top" className="sticky top-0 z-50 bg-white shadow-md mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200"> 
             <div className="flex h-16 items-center">
-              <button
-                type="button"
-                onClick={() => setOpen(true)}
-                className="relative rounded-md bg-white p-2 text-gray-400 lg:hidden"
-              >
-                <span className="absolute -inset-0.5" />
-                <span className="sr-only">Open menu</span>
-                <Bars3Icon aria-hidden="true" className="size-6" />
-              </button>
+              <NavIconTooltip label="Menu" className="lg:hidden">
+                <button
+                  type="button"
+                  onClick={() => setOpen(!open)}
+                  className="relative rounded-md bg-white p-2 text-gray-400 transition-colors duration-200 hover:bg-gray-50"
+                >
+                  <span className="absolute -inset-0.5" />
+                  <span className="sr-only">Open menu</span>
+                  <Bars3Icon aria-hidden="true" className={navIconClass} />
+                </button>
+              </NavIconTooltip>
 
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
-                <a href="#">
+                <Link to="/">
                   <span className="sr-only">Your Company</span>
                   <img
                     alt=""
                     src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                     className="h-8 w-auto"
                   />
-                </a>
+                </Link>
               </div>
 
               {/* Flyout menus */}
@@ -329,10 +346,10 @@ export default function Example() {
                                       src={item.imageSrc}
                                       className="aspect-square w-full rounded-lg bg-gray-100 object-cover group-hover:opacity-75"
                                     />
-                                    <a href={item.href} className="mt-6 block font-medium text-gray-900">
+                                    <Link to="/products" className="mt-6 block font-medium text-gray-900">
                                       <span aria-hidden="true" className="absolute inset-0 z-10" />
                                       {item.name}
-                                    </a>
+                                    </Link>
                                     <p aria-hidden="true" className="mt-1">
                                       Shop now
                                     </p>
@@ -352,9 +369,9 @@ export default function Example() {
                                     >
                                       {section.items.map((item) => (
                                         <li key={item.name} className="flex">
-                                          <a href={item.href} className="hover:text-gray-800">
+                                          <Link to="/products" className="hover:text-gray-800">
                                             {item.name}
-                                          </a>
+                                          </Link>
                                         </li>
                                       ))}
                                     </ul>
@@ -368,64 +385,117 @@ export default function Example() {
                     </Popover>
                   ))}
                   {navigation.pages.map((page) => (
-                    <a
+                    <Link
                       key={page.name}
-                      href={page.href}
-                      className="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800"
+                      to="/products"
+                      className={`flex items-center text-sm font-medium transition-colors ${
+                        isActive('/products') ? 'text-indigo-600' : 'text-gray-700 hover:text-gray-800'
+                      }`}
                     >
                       {page.name}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </PopoverGroup>
 
-              <div className="ml-auto flex items-center">
-                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                    Sign in
-                  </a>
-                  <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                    Create account
-                  </a>
-                </div>
+                <div className="ml-auto flex items-center">
+                  <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
+                    {user ? (
+                      <div className="flex items-center space-x-4">
+                        <span className="text-sm font-medium text-gray-700">
+                          Hi, {user.firstName}
+                        </span>
+                        <button
+                          onClick={logout}
+                          className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => openAuthModal(true)}
+                          className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                        >
+                          Sign in
+                        </button>
+                        <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
+                        <button
+                          onClick={() => openAuthModal(false)}
+                          className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                        >
+                          Create account
+                        </button>
+                      </>
+                    )}
+                  </div>
 
                 <div className="hidden lg:ml-8 lg:flex">
-                  <a href="#" className="flex items-center text-gray-700 hover:text-gray-800">
-                    <img
-                      alt=""
-                      src="https://tailwindcss.com/plus-assets/img/flags/flag-canada.svg"
-                      className="block h-auto w-5 shrink-0"
-                    />
-                    <span className="ml-3 block text-sm font-medium">CAD</span>
-                    <span className="sr-only">, change currency</span>
-                  </a>
+                  <NavIconTooltip label="Currency">
+                    <a
+                      href="#"
+                      className="flex items-center rounded-md px-1 py-1 text-gray-700 transition-all duration-200 ease-out hover:bg-gray-50 hover:text-indigo-600"
+                    >
+                      <img
+                        alt=""
+                        src="https://tailwindcss.com/plus-assets/img/flags/flag-canada.svg"
+                        className="block h-auto w-5 shrink-0 transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-translate-y-0.5"
+                      />
+                      <span className="ml-3 block text-sm font-medium transition-all duration-200 group-hover:font-semibold">
+                        CAD
+                      </span>
+                      <span className="sr-only">, change currency</span>
+                    </a>
+                  </NavIconTooltip>
                 </div>
 
                 {/* Search */}
                 <div className="flex lg:ml-6">
-                  <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
-                    <span className="sr-only">Search</span>
-                    <MagnifyingGlassIcon aria-hidden="true" className="size-6" />
-                  </a>
+                  <NavIconTooltip label="Search">
+                    <a
+                      href="#"
+                      className="block rounded-md p-2 text-gray-400 transition-colors duration-200 hover:bg-gray-50"
+                    >
+                      <span className="sr-only">Search</span>
+                      <MagnifyingGlassIcon aria-hidden="true" className={navIconClass} />
+                    </a>
+                  </NavIconTooltip>
                 </div>
 
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
-                  <a href="#" className="group -m-2 flex items-center p-2">
-                    <ShoppingBagIcon
-                      aria-hidden="true"
-                      className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
-                    />
-                    <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">0</span>
-                    <span className="sr-only">items in cart, view bag</span>
-                  </a>
+                  <NavIconTooltip label="Cart">
+                    <button
+                      type="button"
+                      onClick={toggleCart}
+                      className="-m-2 flex items-center rounded-md p-2 transition-colors duration-200 hover:bg-gray-50"
+                      aria-label="Toggle cart"
+                    >
+                      <ShoppingBagIcon aria-hidden="true" className={navIconClass} />
+                      <span className="ml-2 text-sm font-medium text-gray-700 transition-all duration-200 group-hover:font-semibold group-hover:text-indigo-600">
+                        {cartCountLabel}
+                      </span>
+                      <span className="sr-only">items in cart, view bag</span>
+                    </button>
+                  </NavIconTooltip>
                 </div>
               </div>
             </div>
           </div>
         </nav>
       </header>
+      <div aria-hidden="true" className="h-[6.5rem]" />
+
+      {/* Cart drawer */}
+      <CartItems isOpen={isCartOpen} onClose={closeCart} />
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        initialIsLogin={authModalIsLogin}
+      />
     </div>
   )
 }

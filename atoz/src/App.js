@@ -1,21 +1,26 @@
-import logo from './logo.svg';
 import './App.css';
 import Navigation from './customer/components/navigation/Navigation';
-import HomePage from './customer/pages/HomePage/HomePage';
 import Footer from './customer/components/Footer/Footer';
-import Product from './customer/components/Product/Product';
-
+import { CartProvider } from './customer/context/CartContext';
+import { AuthProvider } from './customer/context/AuthContext';
+import { BrowserRouter } from 'react-router-dom';
+import AppRoutes from './Routers/AppRoutes';
 
 function App() {
   return (
-    <div className="">
-     <Navigation/>
-    <div>
-      <HomePage/>
-    </div>
-    <Footer/>
-    <Product/>
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <div className="flex flex-col min-h-screen">
+            <Navigation />
+            <div className="flex-grow">
+              <AppRoutes />
+            </div>
+            <Footer />
+          </div>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

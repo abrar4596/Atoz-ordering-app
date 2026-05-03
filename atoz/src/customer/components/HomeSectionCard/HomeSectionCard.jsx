@@ -5,13 +5,13 @@ import React from 'react'
 
 const HomeSectionCard = ({product}) => {
 return (
-    <div className='cursor-pointer flex flex-col items-center bg-white rounded-lg shadow-lg
-     overflow-hidden w-[15rem] mx-3 border-black'>
-            <div className='h-[13rem] w-[10rem]'>
+    <div className='cursor-pointer flex flex-col items-center bg-white rounded-lg shadow-lg overflow-hidden w-full'>
+            {/* Responsive image area (scales with the carousel item width) */}
+            <div className='w-full aspect-[16/9] sm:aspect-[4/3] lg:aspect-[1/1] bg-gray-50'>
                     <img
                         src={product.image}
                         alt="Container evoking a sense of health and nutrition"
-                        className='object-cover'
+                        className='w-full h-full object-cover'
                     />
             </div>
             

@@ -26,46 +26,69 @@ const sortOptions = [
   { name: 'Price: High to Low', href: '#', current: false },
 ]
 const subCategories = [
-  { name: 'Totes', href: '#' },
-  { name: 'Backpacks', href: '#' },
-  { name: 'Travel Bags', href: '#' },
-  { name: 'Hip Bags', href: '#' },
-  { name: 'Laptop Sleeves', href: '#' },
+  { name: 'Protein', href: '#' },
+  { name: 'Mass Gainer', href: '#' },
+  { name: 'Creatine', href: '#' },
+  { name: 'Omega-3', href: '#' },
+  { name: 'Protein Snacks', href: '#' },
+  { name: 'Medicines', href: '#' },
 ]
 const filters = [
   {
-    id: 'color',
-    name: 'Color',
+    id: 'brand',
+    name: 'Brand',
     options: [
-      { value: 'white', label: 'White', checked: false },
-      { value: 'beige', label: 'Beige', checked: false },
-      { value: 'blue', label: 'Blue', checked: true },
-      { value: 'brown', label: 'Brown', checked: false },
-      { value: 'green', label: 'Green', checked: false },
-      { value: 'purple', label: 'Purple', checked: false },
+      { value: 'optimum-nutrition', label: 'Optimum Nutrition', checked: false },
+      { value: 'muscleblaze', label: 'MuscleBlaze', checked: false },
+      { value: 'myprotein', label: 'MyProtein', checked: false },
+      { value: 'gnc', label: 'GNC', checked: false },
+      { value: 'dymatize', label: 'Dymatize', checked: false },
+      { value: 'himalaya', label: 'Himalaya', checked: false },
     ],
   },
   {
-    id: 'category',
-    name: 'Category',
+    id: 'price',
+    name: 'Price Range',
     options: [
-      { value: 'new-arrivals', label: 'New Arrivals', checked: false },
-      { value: 'sale', label: 'Sale', checked: false },
-      { value: 'travel', label: 'Travel', checked: true },
-      { value: 'organization', label: 'Organization', checked: false },
-      { value: 'accessories', label: 'Accessories', checked: false },
+      { value: 'under-999', label: 'Under ₹999', checked: false },
+      { value: '1000-1999', label: '₹1,000 - ₹1,999', checked: false },
+      { value: '2000-2999', label: '₹2,000 - ₹2,999', checked: false },
+      { value: '3000-4999', label: '₹3,000 - ₹4,999', checked: false },
+      { value: '5000-plus', label: '₹5,000+', checked: false },
     ],
   },
   {
-    id: 'size',
-    name: 'Size',
+    id: 'kg',
+    name: 'Kg',
     options: [
-      { value: '2l', label: '2L', checked: false },
-      { value: '6l', label: '6L', checked: false },
-      { value: '12l', label: '12L', checked: false },
-      { value: '18l', label: '18L', checked: false },
-      { value: '20l', label: '20L', checked: false },
-      { value: '40l', label: '40L', checked: true },
+      { value: '0-25kg', label: '0.25 kg', checked: false },
+      { value: '0-5kg', label: '0.5 kg', checked: false },
+      { value: '1kg', label: '1 kg', checked: false },
+      { value: '2kg', label: '2 kg', checked: false },
+      { value: '3kg', label: '3 kg', checked: false },
+      { value: '5kg', label: '5 kg', checked: false },
+    ],
+  },
+  {
+    id: 'rating',
+    name: 'Rating',
+    options: [
+      { value: '5', label: '5 Stars', checked: false },
+      { value: '4', label: '4 Stars', checked: false },
+      { value: '3', label: '3 Stars', checked: false },
+      { value: '2', label: '2 Stars', checked: false },
+      { value: '1', label: '1 Star', checked: false },
+    ],
+  },
+  {
+    id: 'offers',
+    name: 'Discount / Offers',
+    options: [
+      { value: '10-percent', label: '10% Off or more', checked: false },
+      { value: '20-percent', label: '20% Off or more', checked: false },
+      { value: '30-percent', label: '30% Off or more', checked: false },
+      { value: '50-percent', label: '50% Off or more', checked: false },
+      { value: 'bogo', label: 'Buy 1 Get 1', checked: false },
     ],
   },
 ]
@@ -125,7 +148,7 @@ export default function Product() {
                         <span className="font-medium text-gray-900">{section.name}</span>
                         <span className="ml-6 flex items-center">
                           <PlusIcon aria-hidden="true" className="size-5 group-data-open:hidden" />
-                          <MinusIcon aria-hidden="true" className="size-5 group-not-data-open:hidden" />
+                          <MinusIcon aria-hidden="true" className="size-5 hidden group-data-open:block" />
                         </span>
                       </DisclosureButton>
                     </h3>
@@ -256,7 +279,7 @@ export default function Product() {
                         <span className="font-medium text-gray-900">{section.name}</span>
                         <span className="ml-6 flex items-center">
                           <PlusIcon aria-hidden="true" className="size-5 group-data-open:hidden" />
-                          <MinusIcon aria-hidden="true" className="size-5 group-not-data-open:hidden" />
+                          <MinusIcon aria-hidden="true" className="size-5 hidden group-data-open:block" />
                         </span>
                       </DisclosureButton>
                     </h3>
@@ -311,7 +334,9 @@ export default function Product() {
               <div className="lg:col-span-3 w-full">
                 <div className="flex flex-wrap justify-center bg-white py-5">
 
-                  {Protein.map((item) => <ProductCard/>)}
+                  {Protein.map((item) => (
+                    <ProductCard key={item.id} product={item} />
+                  ))}
                 
                 </div>
               </div>

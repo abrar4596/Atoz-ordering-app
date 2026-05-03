@@ -54,9 +54,9 @@ const HomeSectionCarousel = ({data,sectionName}) => {
             variant="contained"
             sx={{
               position: "absolute",
-              top: "13rem",
+              top: "50%",
               right: "0rem",
-              transform: "translateX(50%) rotate(90deg)",
+              transform: "translateX(50%) translateY(-50%) rotate(90deg)",
             }}
             color="white"
             aria-label="next"
@@ -72,9 +72,9 @@ const HomeSectionCarousel = ({data,sectionName}) => {
             variant="contained" 
             sx={{
               position: "absolute",
-              top: "13rem",
+              top: "50%",
               left: "0rem",
-              transform: "translateX(-50%) rotate(-90deg)",
+              transform: "translateX(-50%) translateY(-50%) rotate(-90deg)",
             }}
             color="white"
             aria-label="prev"
